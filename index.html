@@ -1,0 +1,24 @@
+<!doctype HTML>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <title>NiceScript sandbox</title>
+</head>
+<body>
+
+    <p>
+        <label>Input:</label><br>
+        <textarea id="input">eval("alert(1+1)");&NewLine;console.log('sub constructor === null',''.sub.constructor===null);&NewLine;console.log('this === undefined',function(){return this}()===undefined);&NewLine;console.log('document === undefined',document === undefined);</textarea>
+    </p>
+    
+    <p>
+        <label>Error Output:</label><br>
+        <textarea id="errorOutput"></textarea>
+    </p>
+    
+    <button onclick="NiceScript.run(document.getElementById('input').value)">Run</button>
+
+<script src="js/nice-script.js"></script>
+</body>
+</html>
