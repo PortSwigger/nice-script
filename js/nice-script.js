@@ -52,6 +52,12 @@ var NiceScript = function(){
                     Object.getPrototypeOf(function*(){}).constructor.prototype.prototype.throw = null;
                     Object.getPrototypeOf(function*(){}).constructor.prototype.prototype.next = null;
                     Object.freeze((function*(){}).constructor.prototype.prototype);
+
+                    (async function*(){}).constructor.prototype.prototype.next=null;
+                    (async function*(){}).constructor.prototype.prototype.return=null;
+                    (async function*(){}).constructor.prototype.prototype.throw=null;
+                    Object.freeze((async function*(){}).constructor.prototype.prototype);
+                    
                 }
                 var proxy = new Proxy(allowList, handler);  
                 var catchAllProxy = new Proxy({__proto__:null, proxy:proxy, globalThis:new Proxy(allowList, handler), window:new Proxy(allowList, handler)}, catchAllHandler);                     
