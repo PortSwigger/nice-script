@@ -48,7 +48,7 @@ var NiceScript = function(){
                     Object.freeze(Symbol);
                     Object.freeze(Math);
                     Object.freeze(Function);
-                    Object.freeze(RegExp.prototype);
+                    Object.freeze(RegExp);
                     Object.freeze(Object.prototype);
                     Object.freeze(String.prototype);
                     Object.freeze(Number.prototype);
