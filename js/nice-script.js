@@ -48,16 +48,9 @@ var NiceScript = function(){
                     Object.freeze(Math.prototype);
                     Object.freeze(Function.prototype);
                     Object.freeze(RegExp.prototype);
-                    Object.getPrototypeOf(function*(){}).constructor.prototype.prototype.return = null;
-                    Object.getPrototypeOf(function*(){}).constructor.prototype.prototype.throw = null;
-                    Object.getPrototypeOf(function*(){}).constructor.prototype.prototype.next = null;
-                    Object.freeze((function*(){}).constructor.prototype.prototype);
-
-                    (async function*(){}).constructor.prototype.prototype.next=null;
-                    (async function*(){}).constructor.prototype.prototype.return=null;
-                    (async function*(){}).constructor.prototype.prototype.throw=null;
-                    Object.freeze((async function*(){}).constructor.prototype.prototype);
-                    
+                    Object.defineProperty((async function(){}).constructor.prototype, 'constructor', {value: null});
+                    Object.defineProperty((async function*(){}).constructor.prototype, 'constructor', {value: null});
+                    Object.defineProperty((function*(){}).constructor.prototype, 'constructor', {value: null});                     
                 }
                 var proxy = new Proxy(allowList, handler);  
                 var catchAllProxy = new Proxy({__proto__:null, proxy:proxy, globalThis:new Proxy(allowList, handler), window:new Proxy(allowList, handler)}, catchAllHandler);                     
