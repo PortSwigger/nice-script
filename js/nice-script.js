@@ -82,7 +82,7 @@ var NiceScript = function(){
     }
     function checkSyntax(code) {
         Function(code);
-        if(/\bimport\s*(?:[(]|\/[*]|\/\/|<!--)/.test(code)) {
+        if(/\bimport\s*(?:[(]|\/[*]|\/\/|<!--|-->)/.test(code)) {
             throw new Error("Dynamic imports are blocked");
         }
         return true;
