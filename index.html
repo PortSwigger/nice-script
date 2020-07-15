@@ -17,7 +17,7 @@
         <textarea id="errorOutput"></textarea>
     </p>
     
-    <button onclick="NiceScript.run(document.getElementById('input').value)">Run</button>
+<button onclick="try{NiceScript.run(document.getElementById('input').value)}catch(e){document.getElementById('errorOutput').value = e;}">Run</button>
 
 <script src="js/nice-script.js"></script>
 </body>
