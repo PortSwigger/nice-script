@@ -41,6 +41,14 @@ var NiceScript = function(){
                 };
                 if(!Object.isFrozen(String.prototype)) {
                     Function.prototype.constructor = null;
+                    Object.freeze(Object);
+                    Object.freeze(String);
+                    Object.freeze(Number);
+                    Object.freeze(Array);
+                    Object.freeze(Symbol);
+                    Object.freeze(Math);
+                    Object.freeze(Function);
+                    Object.freeze(RegExp.prototype);
                     Object.freeze(Object.prototype);
                     Object.freeze(String.prototype);
                     Object.freeze(Number.prototype);
