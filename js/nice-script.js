@@ -21,7 +21,41 @@ var NiceScript = function(){
 
                     },
                     has(){return true}
-                };     
+                };   
+                
+                window.console.log = function(original){
+                    return function(){
+                        if(typeof arguments[0] === 'string') {
+                            arguments[0] = arguments[0].replace(/%c/,'');
+                        }
+                        return original(...arguments);
+                    };
+                }(window.console.info);
+                window.console.info = function(original){
+                    return function(){
+                        if(typeof arguments[0] === 'string') {
+                            arguments[0] = arguments[0].replace(/%c/,'');
+                        }
+                        return original(...arguments);
+                    };
+                }(window.console.info);
+                window.console.warn = function(original){
+                    return function(){
+                        if(typeof arguments[0] === 'string') {
+                            arguments[0] = arguments[0].replace(/%c/,'');
+                        }
+                        return original(...arguments);
+                    };
+                }(window.console.warn);
+                window.console.error = function(original){
+                    return function(){
+                        if(typeof arguments[0] === 'string') {
+                            arguments[0] = arguments[0].replace(/%c/,'');
+                        }
+                        return original(...arguments);
+                    };
+                }(window.console.error);
+            
                 var allowList = {
                     __proto__: null,
                     console__$:console,
@@ -51,6 +85,7 @@ var NiceScript = function(){
                     Object.freeze(RegExp);
                     Object.freeze(BigInt);
                     Object.freeze(Promise);
+                    Object.freeze(console);
                     Object.freeze(BigInt.prototype);
                     Object.freeze(Object.prototype);
                     Object.freeze(String.prototype);
@@ -67,7 +102,9 @@ var NiceScript = function(){
                     
                     Object.freeze((async function(){return 1}).__proto__);
                     Object.freeze((async function *(){return 1}).__proto__);
-                    Object.freeze((function *(){return 1}).__proto__);                
+                    Object.freeze((function *(){return 1}).__proto__);   
+                    Object.freeze((function *(){return 1}).__proto__.prototype);
+                    Object.freeze((async function *(){return 1}).__proto__.prototype);             
                 }
                 var proxy = new Proxy(allowList, handler);  
                 var catchAllProxy = new Proxy({__proto__:null, proxy:proxy, globalThis:new Proxy(allowList, handler), window:new Proxy(allowList, handler)}, catchAllHandler);                     
