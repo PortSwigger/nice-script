@@ -102,7 +102,9 @@ var NiceScript = function(){
                     
                     Object.freeze((async function(){return 1}).__proto__);
                     Object.freeze((async function *(){return 1}).__proto__);
-                    Object.freeze((function *(){return 1}).__proto__);                
+                    Object.freeze((function *(){return 1}).__proto__);   
+                    Object.freeze((function *(){return 1}).__proto__.prototype);
+                    Object.freeze((async function *(){return 1}).__proto__.prototype);             
                 }
                 var proxy = new Proxy(allowList, handler);  
                 var catchAllProxy = new Proxy({__proto__:null, proxy:proxy, globalThis:new Proxy(allowList, handler), window:new Proxy(allowList, handler)}, catchAllHandler);                     
