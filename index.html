@@ -9,7 +9,28 @@
 
     <p>
         <label>Input:</label><br>
-        <textarea id="input">eval("alert(1+1)");&NewLine;console.log('sub constructor === null',''.sub.constructor===null);&NewLine;console.log('this === undefined',function(){return this}()===undefined);&NewLine;console.log('document === undefined',document === undefined);</textarea>
+        <textarea id="input">
+try{
+(async function(){}).constructor('alert(1)')();
+}catch(e){}
+try{
+(async function*(){}).constructor('alert(2)')().next();
+}catch(e){}
+try{
+    eval("}}eval('alert(1337)');{{")
+} catch(e){}
+try{
+    ''.sub.constructor('eval(alert(1337))')()
+} catch(e){}
+try{
+    (function*(){}).constructor("eval('alert(1337)')")().next()
+} catch(e){}
+try {
+    function x() {return this;}
+    x().alert(1)
+} catch(e){}
+eval("alert(1+1)");
+        </textarea>
     </p>
     
     <p>
