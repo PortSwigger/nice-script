@@ -78,7 +78,6 @@ var NiceScript = function(){
                 return output;                                       
             }
         } catch(e) {
-            document.getElementById('errorOutput').value = e;
             throw e;
         }
     }
