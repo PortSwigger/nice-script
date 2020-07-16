@@ -50,6 +50,7 @@ var NiceScript = function(){
                     Object.freeze(Function);
                     Object.freeze(RegExp);
                     Object.freeze(BigInt);
+                    Object.freeze(Promise);
                     Object.freeze(BigInt.prototype);
                     Object.freeze(Object.prototype);
                     Object.freeze(String.prototype);
@@ -59,9 +60,14 @@ var NiceScript = function(){
                     Object.freeze(Math.prototype);
                     Object.freeze(Function.prototype);
                     Object.freeze(RegExp.prototype);
+                    Object.freeze(Promise.prototype);
                     Object.defineProperty((async function(){}).constructor.prototype, 'constructor', {value: null, configurable: false, writable: false});
                     Object.defineProperty((async function*(){}).constructor.prototype, 'constructor', {value: null, configurable: false, writable: false});
-                    Object.defineProperty((function*(){}).constructor.prototype, 'constructor', {value: null, configurable: false, writable: false});                     
+                    Object.defineProperty((function*(){}).constructor.prototype, 'constructor', {value: null, configurable: false, writable: false}); 
+                    
+                    Object.freeze((async function(){return 1}).__proto__);
+                    Object.freeze((async function *(){return 1}).__proto__);
+                    Object.freeze((function *(){return 1}).__proto__);                
                 }
                 var proxy = new Proxy(allowList, handler);  
                 var catchAllProxy = new Proxy({__proto__:null, proxy:proxy, globalThis:new Proxy(allowList, handler), window:new Proxy(allowList, handler)}, catchAllHandler);                     
