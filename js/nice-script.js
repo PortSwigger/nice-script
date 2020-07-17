@@ -3,8 +3,9 @@ var NiceScript = function(){
         try {
             if(checkSyntax(code)) {
                 var handler = {
-                    get(obj, prop) {                                                         
-                            return Reflect.has(obj, prop.toString()+'__$') ? obj[prop.toString()+'__$'] : undefined;
+                    get(obj, prop) {
+                        return Reflect.has(obj, prop.toString() + '__$') ? 
+                            obj[prop.toString() + '__$'] : undefined;
                     },
                     set(obj, prop, value) {
                             Reflect.set(obj, prop+'__$', value);
@@ -17,45 +18,30 @@ var NiceScript = function(){
                     get(obj, prop){
                         return Reflect.get(obj,prop);
                     },
-                    set(){
+                    set() { },
+                    has() {
+                        return true
+                    }
+                };
 
-                    },
-                    has(){return true}
-                };   
+                const _console = {};
+
+                (function createMockConsole(_console){
+                    const allowConsoleProps = ["debug", "error", "info", "log", "warn", 
+                            "dir", "dirxml", "table", "trace", "group", "groupCollapsed", 
+                            "groupEnd", "clear", "count", "countReset", "assert", "profile", 
+                            "profileEnd", "time", "timeLog", "timeEnd", "timeStamp"];
                 
-                window.console.log = function(original){
-                    return function(){
-                        if(typeof arguments[0] === 'string') {
-                            arguments[0] = arguments[0].replace(/%c/,'');
+                    for(const property of allowConsoleProps){
+                        _console[property] = function(){
+                            if (arguments.length > 1 && typeof arguments[0] === 'string') {
+                                arguments[0] = arguments[0].replace(/%/g, '%%')
+                            }
+                            return console[property](...arguments);
                         }
-                        return original(...arguments);
-                    };
-                }(window.console.info);
-                window.console.info = function(original){
-                    return function(){
-                        if(typeof arguments[0] === 'string') {
-                            arguments[0] = arguments[0].replace(/%c/,'');
-                        }
-                        return original(...arguments);
-                    };
-                }(window.console.info);
-                window.console.warn = function(original){
-                    return function(){
-                        if(typeof arguments[0] === 'string') {
-                            arguments[0] = arguments[0].replace(/%c/,'');
-                        }
-                        return original(...arguments);
-                    };
-                }(window.console.warn);
-                window.console.error = function(original){
-                    return function(){
-                        if(typeof arguments[0] === 'string') {
-                            arguments[0] = arguments[0].replace(/%c/,'');
-                        }
-                        return original(...arguments);
-                    };
-                }(window.console.error);
-            
+                    }
+                })(_console);
+
                 var allowList = {
                     __proto__: null,
                     console__$:console,
@@ -75,6 +61,8 @@ var NiceScript = function(){
                 };
                 if(!Object.isFrozen(String.prototype)) {
                     Function.prototype.constructor = null;
+                    Object.freeze(console);
+                    Object.freeze(_console);
                     Object.freeze(Object);
                     Object.freeze(String);
                     Object.freeze(Number);
@@ -96,15 +84,27 @@ var NiceScript = function(){
                     Object.freeze(Function.prototype);
                     Object.freeze(RegExp.prototype);
                     Object.freeze(Promise.prototype);
-                    Object.defineProperty((async function(){}).constructor.prototype, 'constructor', {value: null, configurable: false, writable: false});
-                    Object.defineProperty((async function*(){}).constructor.prototype, 'constructor', {value: null, configurable: false, writable: false});
-                    Object.defineProperty((function*(){}).constructor.prototype, 'constructor', {value: null, configurable: false, writable: false}); 
-                    
-                    Object.freeze((async function(){return 1}).__proto__);
-                    Object.freeze((async function *(){return 1}).__proto__);
-                    Object.freeze((function *(){return 1}).__proto__);   
-                    Object.freeze((function *(){return 1}).__proto__.prototype);
-                    Object.freeze((async function *(){return 1}).__proto__.prototype);             
+                    Object.defineProperty((async function () {}).constructor.prototype, 'constructor', {
+                        value: null,
+                        configurable: false,
+                        writable: false
+                    });
+                    Object.defineProperty((async function* () {}).constructor.prototype, 'constructor', {
+                        value: null,
+                        configurable: false,
+                        writable: false
+                    });
+                    Object.defineProperty((function* () {}).constructor.prototype, 'constructor', {
+                        value: null,
+                        configurable: false,
+                        writable: false
+                    });
+
+                    Object.freeze((async function () {}).__proto__);
+                    Object.freeze((async function* () {}).__proto__);
+                    Object.freeze((function* () {}).__proto__);
+                    Object.freeze((function* () {}).__proto__.prototype);
+                    Object.freeze((async function* () {}).__proto__.prototype);
                 }
                 var proxy = new Proxy(allowList, handler);  
                 var catchAllProxy = new Proxy({__proto__:null, proxy:proxy, globalThis:new Proxy(allowList, handler), window:new Proxy(allowList, handler)}, catchAllHandler);                     
