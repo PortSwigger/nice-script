@@ -1,66 +1,63 @@
-var NiceScript = function(){
+var NiceScript = function () {
     function run(code) {
         try {
-            if(checkSyntax(code)) {
+            if (checkSyntax(code)) {
                 var handler = {
-                    get(obj, prop) {                                                         
-                            return Reflect.has(obj, prop.toString()+'__$') ? obj[prop.toString()+'__$'] : undefined;
+                    get(obj, prop) {
+                        return Reflect.has(obj, prop.toString() + '__$') ? obj[prop.toString() + '__$'] : undefined;
                     },
                     set(obj, prop, value) {
-                            Reflect.set(obj, prop+'__$', value);
+                        Reflect.set(obj, prop + '__$', value);
                     },
-                    has(obj,prop) {                        
-                            return obj && Reflect.has(obj, prop.toString()+'__$');
+                    has(obj, prop) {
+                        return obj && Reflect.has(obj, prop.toString() + '__$');
                     }
                 };
                 var catchAllHandler = {
-                    get(obj, prop){
-                        return Reflect.get(obj,prop);
+                    get(obj, prop) {
+                        return Reflect.get(obj, prop);
                     },
-                    set(){
+                    set() {
 
                     },
-                    has(){return true}
-                };   
-                
-                window.console.log = function(original){
-                    return function(){
-                        if(typeof arguments[0] === 'string') {
-                            arguments[0] = arguments[0].replace(/%c/,'');
+                    has() {
+                        return true
+                    }
+                };
+
+                const _consoleHandler = {
+                    get: function (target, prop, receiver) {
+                        const allowProps = ["debug", "error", "info", "log", "warn", 
+                            "dir", "dirxml", "table", "trace", "group", "groupCollapsed", 
+                            "groupEnd", "clear", "count", "countReset", "assert", "profile", 
+                            "profileEnd", "time", "timeLog", "timeEnd", "timeStamp"
+                        ];
+                        if(!allowProps.includes(prop)){
+                            throw new Error(`console[${prop}] is disallowed`);
                         }
-                        return original(...arguments);
-                    };
-                }(window.console.info);
-                window.console.info = function(original){
-                    return function(){
-                        if(typeof arguments[0] === 'string') {
-                            arguments[0] = arguments[0].replace(/%c/,'');
+                        if (typeof target[prop] === 'function') {
+                            return function () {
+                                if (arguments.length > 1 && typeof arguments[0] === 'string') {
+                                    arguments[0] = arguments[0].replace(/%/g, '%%')
+                                }
+                                return target[prop](...arguments);
+                            }
+                        } else {
+                            return target[prop];
                         }
-                        return original(...arguments);
-                    };
-                }(window.console.info);
-                window.console.warn = function(original){
-                    return function(){
-                        if(typeof arguments[0] === 'string') {
-                            arguments[0] = arguments[0].replace(/%c/,'');
-                        }
-                        return original(...arguments);
-                    };
-                }(window.console.warn);
-                window.console.error = function(original){
-                    return function(){
-                        if(typeof arguments[0] === 'string') {
-                            arguments[0] = arguments[0].replace(/%c/,'');
-                        }
-                        return original(...arguments);
-                    };
-                }(window.console.error);
-            
+                    },
+                    set: function () {
+                        throw new Error("Can't override console object");
+                    }
+                };
+
+                const _console = new Proxy(console, _consoleHandler);
+
                 var allowList = {
                     __proto__: null,
-                    console__$:console,
-                    alert__$: function(){ 
-                        alert("Sandboxed alert:"+arguments[0]);
+                    console__$: _console,
+                    alert__$: function () {
+                        alert("Sandboxed alert:" + arguments[0]);
                     },
                     String__$: String,
                     Number__$: Number,
@@ -69,11 +66,11 @@ var NiceScript = function(){
                     Math__$: Math,
                     RegExp__$: RegExp,
                     Object__$: Object,
-                    eval__$: function(code){
-                        return NiceScript.run("return "+code);
-                    }      
+                    eval__$: function (code) {
+                        return NiceScript.run("return " + code);
+                    }
                 };
-                if(!Object.isFrozen(String.prototype)) {
+                if (!Object.isFrozen(String.prototype)) {
                     Function.prototype.constructor = null;
                     Object.freeze(Object);
                     Object.freeze(String);
@@ -85,7 +82,6 @@ var NiceScript = function(){
                     Object.freeze(RegExp);
                     Object.freeze(BigInt);
                     Object.freeze(Promise);
-                    Object.freeze(console);
                     Object.freeze(BigInt.prototype);
                     Object.freeze(Object.prototype);
                     Object.freeze(String.prototype);
@@ -96,18 +92,45 @@ var NiceScript = function(){
                     Object.freeze(Function.prototype);
                     Object.freeze(RegExp.prototype);
                     Object.freeze(Promise.prototype);
-                    Object.defineProperty((async function(){}).constructor.prototype, 'constructor', {value: null, configurable: false, writable: false});
-                    Object.defineProperty((async function*(){}).constructor.prototype, 'constructor', {value: null, configurable: false, writable: false});
-                    Object.defineProperty((function*(){}).constructor.prototype, 'constructor', {value: null, configurable: false, writable: false}); 
-                    
-                    Object.freeze((async function(){return 1}).__proto__);
-                    Object.freeze((async function *(){return 1}).__proto__);
-                    Object.freeze((function *(){return 1}).__proto__);   
-                    Object.freeze((function *(){return 1}).__proto__.prototype);
-                    Object.freeze((async function *(){return 1}).__proto__.prototype);             
+                    Object.defineProperty((async function () {}).constructor.prototype, 'constructor', {
+                        value: null,
+                        configurable: false,
+                        writable: false
+                    });
+                    Object.defineProperty((async function* () {}).constructor.prototype, 'constructor', {
+                        value: null,
+                        configurable: false,
+                        writable: false
+                    });
+                    Object.defineProperty((function* () {}).constructor.prototype, 'constructor', {
+                        value: null,
+                        configurable: false,
+                        writable: false
+                    });
+
+                    Object.freeze((async function () {
+                        return 1
+                    }).__proto__);
+                    Object.freeze((async function* () {
+                        return 1
+                    }).__proto__);
+                    Object.freeze((function* () {
+                        return 1
+                    }).__proto__);
+                    Object.freeze((function* () {
+                        return 1
+                    }).__proto__.prototype);
+                    Object.freeze((async function* () {
+                        return 1
+                    }).__proto__.prototype);
                 }
-                var proxy = new Proxy(allowList, handler);  
-                var catchAllProxy = new Proxy({__proto__:null, proxy:proxy, globalThis:new Proxy(allowList, handler), window:new Proxy(allowList, handler)}, catchAllHandler);                     
+                var proxy = new Proxy(allowList, handler);
+                var catchAllProxy = new Proxy({
+                    __proto__: null,
+                    proxy: proxy,
+                    globalThis: new Proxy(allowList, handler),
+                    window: new Proxy(allowList, handler)
+                }, catchAllHandler);
                 var output = Function('proxy', 'catchAllProxy', `
                     with(catchAllProxy) {     
                         with(proxy) {  
@@ -117,19 +140,22 @@ var NiceScript = function(){
                             })();
                         }
                     }                    
-                `)(proxy, catchAllProxy); 
-                return output;                                       
+                `)(proxy, catchAllProxy);
+                return output;
             }
-        } catch(e) {
+        } catch (e) {
             throw e;
         }
     }
+
     function checkSyntax(code) {
         Function(code);
-        if(/\bimport\s*(?:[(]|\/[*]|\/\/|<!--|-->)/.test(code)) {
+        if (/\bimport\s*(?:[(]|\/[*]|\/\/|<!--|-->)/.test(code)) {
             throw new Error("Dynamic imports are blocked");
         }
         return true;
     }
-    return {run: run};
+    return {
+        run: run
+    };
 }();
