@@ -44,7 +44,7 @@ var NiceScript = function(){
 
                 var allowList = {
                     __proto__: null,
-                    console__$:console,
+                    console__$:_console,
                     alert__$: function(){ 
                         alert("Sandboxed alert:"+arguments[0]);
                     },
